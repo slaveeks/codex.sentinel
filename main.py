@@ -1,28 +1,16 @@
 from aiohttp import web
-routes = web.RouteTableDef()
 
-
-@routes.post('/problem')
-async def problem(request):
-    text = request['post']['text']
-    if text != '':
-        pass
-
-@routes.post('/duty')
-async def duty(request):
-    username = request['post']['username']
-    date = request['post']['date']
-    notify_token = request['post']['token']
-
-
-@routes.post('/telegram')
-async def telegram(request):
-    pass
-
-
+import config
+import handlers
+import telegram
+from urllib.parse import urlparse
 
 
 if __name__ == '__main__':
     app = web.Application()
-    app.add_routes(routes)
-    web.run_app(app, host='0.0.0.0', port=8080)
+    url = urlparse(config.URL)
+    app.router.add_post('/', handlers.telegram_callbacks)
+    app.router.add_post('/{token}/set_duty', handlers.duty)
+    app.router.add_post('/problem', handlers.problem)
+    telegram.set_webhook()
+    web.run_app(app, host='127.0.0.1', port=1338)
